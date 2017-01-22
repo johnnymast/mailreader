@@ -10,7 +10,7 @@ The following operations are supported out of the box.
  - List/Create/Delete mailboxes (folders)
 
 For some basic examples checkout the demos folder in this repository.
-  
+
 
 ## Requirements
 
