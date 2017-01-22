@@ -46,7 +46,6 @@ class MailReader
      */
     public function connect($credentials = [])
     {
-
         if ($diff = array_diff(array_keys($this->settings), array_keys($credentials))) {
             throw new \Exception("Missing credentials, the following fields are missing ".implode('/', $diff));
         }
@@ -140,7 +139,6 @@ class MailReader
      */
     public function filterUnReadMessagesTo($to = '')
     {
-
         $filteredResult = $this->filterTo($to);
         $filteredMessages = [];
 
@@ -193,7 +191,6 @@ class MailReader
      */
     public function createMailbox($name = '')
     {
-
         if (empty($name)) {
             return false;
         }
