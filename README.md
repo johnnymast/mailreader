@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/johnnymast/mailreader.svg?branch=master)](https://travis-ci.org/johnnymast/mailreader)
 
 # MailReader
 
@@ -14,13 +15,11 @@ For some basic examples checkout the demos folder in this repository.
 
 The following versions of PHP are supported by this version.
 
-+ PHP 5.4
++ PHP 5.6
 + PHP 7.0
 + PHP 7.1
 + HHVM
 + Php_imap (core php extension) 
-
-However for development and testing you will need php 5.6 as this is the minimal required for PhpUnit.
   
 
 ## Simple to use
