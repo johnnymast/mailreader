@@ -20,7 +20,7 @@ try {
     $targetEmailAddress = 'foo@bar.com';
 
     // Create the mailbox (folder) if it does not already exist.
-    if ($reader->mailboxExists($mailbox) == false) {
+    if ($reader->mailboxExists($mailbox) === false) {
         $reader->createMailbox($mailbox);
     }
 

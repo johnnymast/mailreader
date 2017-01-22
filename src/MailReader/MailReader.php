@@ -30,7 +30,7 @@ class MailReader
      * When this class is destructed we
      * might want to close the connection.
      */
-    function __destruct()
+    public function __destruct()
     {
         $this->close();
     }
