@@ -1,4 +1,5 @@
 .idea/*
+.idea
 composer.lock
 index.php
 phpunit.phar
