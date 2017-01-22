@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/johnnymast/mailreader.svg?branch=master)](https://travis-ci.org/johnnymast/mailreader)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/johnnymast/mailreader/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/johnnymast/mailreader/?branch=master)
 
 # MailReader
 
