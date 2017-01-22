@@ -1,5 +1,5 @@
 filter:
-  excluded_paths:
+    excluded_paths:
         - tests/*
 
 checks:
