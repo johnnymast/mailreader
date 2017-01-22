@@ -1,5 +1,5 @@
 {
-    "name": "johnny/mailreader",
+    "name": "johnnymast/mailreader",
     "description": "Get your email messages from mailserver",
     "type": "library",
     "license": "MIT",
