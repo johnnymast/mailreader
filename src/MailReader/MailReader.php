@@ -53,7 +53,7 @@ class MailReader
 
         $this->settings = array_merge($this->settings, $credentials);
 
-        if (isset($this->settings['port']) == false) {
+        if (isset($this->settings['port']) === false) {
             $this->settings['port'] = 143;
         }
 
@@ -362,7 +362,7 @@ class MailReader
     public function getMessage($id = '')
     {
         $message = $this->messages[$id];
-        if (is_array($message) == true) {
+        if (is_array($message) === true) {
             // Get the message body but do not mark as read
             $message['body'] = imap_body($this->conn, $message['index'], FT_PEEK);
         }
