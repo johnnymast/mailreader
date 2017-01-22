@@ -15,7 +15,7 @@ try {
     $messages = $reader->filterTo('foo@bar.com');
 
     if (is_array($messages) && count($messages) > 0) {
-        foreach($messages as $email) {
+        foreach ($messages as $email) {
             $header = $email['header'];
 
             // Assuming CLI here

@@ -10,6 +10,7 @@ try {
         'username' => 'foo@bar.com',
         'password' => 'bar'
     ]);
+
     /**
      * Note: You can can also use MailReader::getPrettyMailboxes
      *       To get a polished list.
@@ -17,7 +18,7 @@ try {
     $mailboxes = $reader->getPrettyMailboxes();
 
     if (is_array($mailboxes) && count($mailboxes) > 0) {
-        foreach($mailboxes as $mailbox) {
+        foreach ($mailboxes as $mailbox) {
             // Assuming CLI here
             print $mailbox."\n";
         }
