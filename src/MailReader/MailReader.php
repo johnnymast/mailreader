@@ -202,6 +202,20 @@ class MailReader
 
 
     /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function subscribeMailbox($name = '') {
+        if (empty($name)) {
+            return false;
+        }
+
+        $name = imap_utf7_encode($name);
+        return imap_subscribe ( $this->conn, "{".$this->settings['server']."}INBOX.".$name );
+    }
+
+    /**
      * Remove a mailbox (folder)
      *
      * @param string $name
@@ -358,8 +372,16 @@ class MailReader
      */
     public function getMessage($id = '')
     {
-        --$id;
-        $message = $this->messages[$id];
+        $message = [];
+        if (is_array($this->messages) == true) {
+            foreach($this ->messages as $msg) {
+                if ($msg['index'] == $id) {
+                    $message = $msg;
+                    break;
+                }
+            }
+        }
+
         if (is_array($message) === true) {
             // Get the message body but do not mark as read
             $message['body'] = imap_fetchbody($this->conn, $message['index'], FT_PEEK);
@@ -380,14 +402,14 @@ class MailReader
 
         $messages = [];
         for ($i = 1; $i <= $msg_cnt; $i++) {
+            $header = imap_headerinfo($this->conn, $i);
             $messages[] = [
-                'index'     => $i,
-                'header'    => imap_headerinfo($this->conn, $i),
+                'index'     => trim($header->Msgno),
+                'header'    => $header,
                 'structure' => imap_fetchstructure($this->conn, $i)
             ];
         }
         $this->messages = $messages;
-
         return $this->messages;
     }
 }
