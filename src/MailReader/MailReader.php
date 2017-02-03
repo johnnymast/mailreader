@@ -358,10 +358,11 @@ class MailReader
      */
     public function getMessage($id = '')
     {
+        --$id;
         $message = $this->messages[$id];
         if (is_array($message) === true) {
             // Get the message body but do not mark as read
-            $message['body'] = imap_body($this->conn, $message['index'], FT_PEEK);
+            $message['body'] = imap_fetchbody($this->conn, $message['index'], FT_PEEK);
         }
 
         return $message;
