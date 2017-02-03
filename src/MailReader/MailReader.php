@@ -202,6 +202,8 @@ class MailReader
 
 
     /**
+     * Subscribe to a mailbox.
+     *
      * @param string $name
      *
      * @return bool
