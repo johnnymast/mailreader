@@ -144,9 +144,11 @@ class MailReader
 
         if (is_array($filteredResult) && count($filteredResult) > 0) {
             foreach ($filteredResult as $message) {
-                $header = $message['header'];
-                if ($header->Unseen == 'U') {
-                    $filteredMessages[] = $message;
+                if (isset($message['header'])) {
+                    $header = $message['header'];
+                    if ($header->Unseen == 'U') {
+                        $filteredMessages[] = $message;
+                    }
                 }
             }
         }
@@ -174,7 +176,7 @@ class MailReader
 
         if (is_array($filteredResult) && count($filteredResult) > 0) {
             foreach ($filteredResult as $index) {
-                $filteredMessages[] = $this->getMessage($index - 1);
+                $filteredMessages[] = $this->getMessageInformation($index);
             }
         }
 
@@ -331,15 +333,28 @@ class MailReader
             return false;
         }
 
-        if ($index >= 0) {
+        $msgId = 0;
+
+        if (is_array($this->messages) == true) {
+            foreach($this ->messages as $msg) {
+                if ($msg['index'] == $index) {
+                    $msgId = $msg['index'];
+                    break;
+                }
+            }
+        }
+
+
+        if ($msgId >= 0) {
             $to = imap_utf7_encode($to);
 
-            imap_mail_move($this->conn, $index, "INBOX.".$to);
+            imap_mail_move($this->conn, $msgId, "INBOX.".$to);
             imap_expunge($this->conn);
         }
 
         return false;
     }
+
 
 
     /**
@@ -364,6 +379,26 @@ class MailReader
         return $result;
     }
 
+
+    /**
+     * Return message information without reading it from the server
+     *
+     * @param string $id
+     *
+     * @return mixed
+     */
+    public function getMessageInformation($id = '')
+    {
+        $message = [];
+        if (is_array($this->messages) == true) {
+            foreach($this ->messages as $msg) {
+                if ($msg['index'] == $id) {
+                    return $msg;
+                }
+            }
+        }
+        return $message;
+    }
 
     /**
      * Return a message based on its index in the mailbox.
