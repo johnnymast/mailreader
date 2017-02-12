@@ -220,13 +220,29 @@ class MailReader
     }
 
     /**
-     * Remove a mailbox (folder)
+     * This function will be deleted in version 1.3
+     * This function is deprecated because of the naming
+     * inconsistency.
+     *
+     * @param string $name
+     *
+     * @deprecated
+     * @return bool
+     */
+    public function removeMailbox($name = '')
+    {
+        return deleteMailbox($name);
+    }
+
+
+    /**
+     * Delete a mailbox (folder)
      *
      * @param string $name
      *
      * @return bool
      */
-    public function removeMailbox($name = '')
+    public function deleteMailbox($name = '')
     {
         if (empty($name)) {
             return false;
@@ -236,6 +252,8 @@ class MailReader
 
         return imap_deletemailbox($this->conn, "{".$this->settings['server']."}INBOX.".$name);
     }
+
+
 
 
     /**
