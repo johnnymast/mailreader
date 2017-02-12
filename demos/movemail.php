@@ -22,6 +22,7 @@ try {
     // Create the mailbox (folder) if it does not already exist.
     if ($reader->mailboxExists($mailbox) === false) {
         $reader->createMailbox($mailbox);
+        $reader->subscribeMailbox($mailbox);
     }
 
     $messages = $reader->filterUnReadMessagesTo($targetEmailAddress);
@@ -35,8 +36,6 @@ try {
     // Switch to mailbox (folder) $mailbox
     $reader->setMailbox($mailbox);
 
-    // Retrieve the messages in mailbox (folder) $mailbox
-    $reader->setMailbox($mailbox);
     $messages = $reader->readMailbox();
 
     // List emails in mailbox (folder) $mailbox

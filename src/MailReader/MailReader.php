@@ -421,7 +421,7 @@ class MailReader
 
         if (is_array($message) === true) {
             // Get the message body but do not mark as read
-            $message['body'] = imap_fetchbody($this->conn, $message['index'], FT_PEEK);
+            $message['body'] = quoted_printable_decode(imap_fetchbody($this->conn, $message['index'], FT_PEEK));
         }
 
         return $message;

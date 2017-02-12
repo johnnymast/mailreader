@@ -121,6 +121,7 @@ $targetEmailAddress = 'foo@bar.com';
 // Create the mailbox (folder) if it does not already exist.
 if ($reader->mailboxExists($mailbox) == false) {
     $reader->createMailbox($mailbox);
+    $reader->subscribeMailbox($mailbox);
 }
 
 $messages = $reader->filterUnReadMessagesTo($targetEmailAddress);
