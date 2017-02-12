@@ -231,7 +231,7 @@ class MailReader
      */
     public function removeMailbox($name = '')
     {
-        return deleteMailbox($name);
+        return $this->deleteMailbox($name);
     }
 
 
