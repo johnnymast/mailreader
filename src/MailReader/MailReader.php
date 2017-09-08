@@ -1,9 +1,22 @@
 <?php
 
 namespace JM\MailReader;
+use JM\MailReader\Adapters\CoreAdapter;
+use JM\MailReader\Adapters\CustomAdaptor;
+use JM\MailReader\Contracts\AdapterContract;
 
+/**
+ * Class MailReader
+ *
+ * @package JM\MailReader
+ */
 class MailReader
 {
+
+    /**
+     * @var AdapterContract
+     */
+    protected $adapter = null;
 
     /**
      * @var array
@@ -27,6 +40,14 @@ class MailReader
 
 
     /**
+     * MailReader constructor.
+     */
+    public function __construct()
+    {
+
+    }
+
+    /**
      * When this class is destructed we
      * might want to close the connection.
      */
@@ -34,6 +55,32 @@ class MailReader
     {
         $this->close();
     }
+
+    /**
+     * @return AdapterContract
+     */
+    public function getAdapter()
+    {
+        if (! $this->adapter) {
+            $class = CustomAdaptor::class;
+
+            if (extension_loaded('ext-imap')) {
+                $class = CoreAdapter::class;
+            }
+
+            $this->adapter = new $class;
+        }
+        return $this->adapter;
+    }
+
+    /**
+     * @param AdapterContract $adapter
+     */
+    public function setAdapter($adapter)
+    {
+        $this->adapter = $adapter;
+    }
+
 
 
     /**
