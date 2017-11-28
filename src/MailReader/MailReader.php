@@ -1,9 +1,15 @@
 <?php
 
 namespace JM\MailReader;
-use JM\MailReader\Adapters\CoreAdapter;
-use JM\MailReader\Adapters\CustomAdaptor;
-use JM\MailReader\Contracts\AdapterContract;
+
+//use JM\MailReader\Adapters\CoreAdapter;
+//use JM\MailReader\Adapters\CustomAdaptor;
+//use JM\MailReader\Contracts\AdapterContract;
+use JM\MailReader\Credentials;
+
+use JM\MailReader\Adapters\{
+    AdapterInterface, Curl\Curl, Core\Core
+};
 
 /**
  * Class MailReader
@@ -12,11 +18,20 @@ use JM\MailReader\Contracts\AdapterContract;
  */
 class MailReader
 {
-
     /**
-     * @var AdapterContract
+     * @var AdapterInterface
      */
     protected $adapter = null;
+
+    /**
+     * @var \JM\MailReader\Credentials
+     */
+    protected $credentials = null;
+
+    /**
+     * @var bool
+     */
+    protected $authenticated = false;
 
     /**
      * @var array
@@ -28,23 +43,16 @@ class MailReader
      */
     private $messages = [];
 
-    /**
-     * @var string
-     */
-    private $mailbox = 'INBOX';
-
-    /**
-     * @var resource
-     */
-    private $conn;
 
 
     /**
      * MailReader constructor.
+     *
+     * @param \JM\MailReader\Credentials $credentials
      */
-    public function __construct()
+    public function __construct(Credentials $credentials)
     {
-
+        $this->credentials = $credentials;
     }
 
     /**
@@ -53,75 +61,52 @@ class MailReader
      */
     public function __destruct()
     {
-        $this->close();
+        $this->adapter->close();
     }
 
     /**
-     * @return AdapterContract
+     * @return AdapterInterface
      */
     public function getAdapter()
     {
         if (! $this->adapter) {
-            $class = CustomAdaptor::class;
+            $class = Curl::class;
 
             if (extension_loaded('ext-imap')) {
-                $class = CoreAdapter::class;
+                $class = Core::class;
             }
-
+            $class = Core::class; // TODO
             $this->adapter = new $class;
         }
+
         return $this->adapter;
     }
 
     /**
-     * @param AdapterContract $adapter
+     * @param AdapterInterface $adapter
      */
-    public function setAdapter($adapter)
+    public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
     }
 
-
-
-    /**
-     * Open a connection to a mail server.
-     *
-     * @param array $credentials
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    public function connect($credentials = [])
-    {
-        if ($diff = array_diff(array_keys($this->settings), array_keys($credentials))) {
-            throw new \Exception("Missing credentials, the following fields are missing ".implode('/', $diff));
+    public function connect() : bool {
+        if ($this->credentials->validate()) {
+            if ($this->getAdapter()->connect($this->credentials)) {
+                $this->authenticated = true;
+            } else {
+                $this->authenticated = false;
+            }
         }
-
-        $this->settings = array_merge($this->settings, $credentials);
-
-        if (isset($this->settings['port']) === false) {
-            $this->settings['port'] = 143;
-        }
-
-        $this->conn = @imap_open('{'.$this->settings['server'].':'.$this->settings['port'].'/notls}',
-            $this->settings['username'], $this->settings['password']);
-
-        if ($this->conn == false) {
-            throw new \Exception("Could not connect or authorize to ".$this->settings['server'].':'.$this->settings['port']);
-        }
-
-        return ($this->conn != null);
+        return $this->authenticated;
     }
 
-
-    /**
-     * Close the connection to the mail server.
-     */
-    private function close()
+    public function __call($name, $arguments)
     {
-        if ($this->conn) {
-            imap_close($this->conn);
+        if (method_exists($this->adapter, $name)) {
+            return call_user_func_array([$this->adapter, $name], $arguments);
         }
+
     }
 
 
@@ -130,39 +115,37 @@ class MailReader
      *
      * @return bool
      */
-    public function setMailbox($mailbox = 'INBOX')
-    {
-
-        if ($mailbox == 'INBOX') {
-            $mailbox = "{".$this->settings['server']."}INBOX";
-        } else {
-            $mailbox = "{".$this->settings['server']."}INBOX.".imap_utf7_encode($mailbox);
-        }
-
-        $result = false;
-
-        if ($this->conn) {
-            $result = imap_reopen($this->conn, $mailbox);
-            $this->mailbox = $mailbox;
-        }
-
-        return $result;
-    }
-
+    //public function setMailbox($mailbox = 'INBOX')
+    //{
+    //
+    //    if ($mailbox == 'INBOX') {
+    //        $mailbox = "{".$this->settings['server']."}INBOX";
+    //    } else {
+    //        $mailbox = "{".$this->settings['server']."}INBOX.".imap_utf7_encode($mailbox);
+    //    }
+    //
+    //    $result = false;
+    //
+    //    if ($this->conn) {
+    //        $result = imap_reopen($this->conn, $mailbox);
+    //        $this->mailbox = $mailbox;
+    //    }
+    //
+    //    return $result;
+    //}
 
     /**
      * Return the name of the current mailbox.
      *
      * @return string
      */
-    public function getMailbox()
-    {
-        $mailbox = str_replace("{".$this->settings['server']."}", '', $this->mailbox);
-        $mailbox = (substr($mailbox, 0, 6) == 'INBOX.') ? substr($mailbox, -6) : $mailbox;
-
-        return $mailbox;
-    }
-
+    //public function getMailbox()
+    //{
+    //    $mailbox = str_replace("{".$this->settings['server']."}", '', $this->mailbox);
+    //    $mailbox = (substr($mailbox, 0, 6) == 'INBOX.') ? substr($mailbox, -6) : $mailbox;
+    //
+    //    return $mailbox;
+    //}
 
     /**
      * Mark a given message as read.
@@ -175,7 +158,6 @@ class MailReader
     {
         return imap_setflag_full($this->conn, $index, "\\Seen");
     }
-
 
     /**
      * Filter unread message sent to $to
@@ -203,7 +185,6 @@ class MailReader
         return $filteredMessages;
     }
 
-
     /**
      * Filter message sent to $to
      *
@@ -230,7 +211,6 @@ class MailReader
         return $filteredMessages;
     }
 
-
     /**
      * Create a mailbox (folder)
      *
@@ -249,7 +229,6 @@ class MailReader
         return imap_createmailbox($this->conn, "{".$this->settings['server']."}INBOX.".$name);
     }
 
-
     /**
      * Subscribe to a mailbox.
      *
@@ -257,13 +236,15 @@ class MailReader
      *
      * @return bool
      */
-    public function subscribeMailbox($name = '') {
+    public function subscribeMailbox($name = '')
+    {
         if (empty($name)) {
             return false;
         }
 
         $name = imap_utf7_encode($name);
-        return imap_subscribe ( $this->conn, "{".$this->settings['server']."}INBOX.".$name );
+
+        return imap_subscribe($this->conn, "{".$this->settings['server']."}INBOX.".$name);
     }
 
     /**
@@ -280,7 +261,6 @@ class MailReader
     {
         return $this->deleteMailbox($name);
     }
-
 
     /**
      * Delete a mailbox (folder)
@@ -300,9 +280,6 @@ class MailReader
         return imap_deletemailbox($this->conn, "{".$this->settings['server']."}INBOX.".$name);
     }
 
-
-
-
     /**
      * Check to see if a given mailbox (folder) exists on the server.
      *
@@ -310,30 +287,28 @@ class MailReader
      *
      * @return bool
      */
-    public function mailboxExists($name = '')
-    {
-        if (empty($name)) {
-            return false;
-        }
-
-        $name = imap_utf7_encode($name);
-        $prefixedName = "{".$this->settings['server']."}INBOX.".$name;
-        $mailboxes = imap_list($this->conn, "{".$this->settings['server']."}", "*");
-
-        return in_array($prefixedName, $mailboxes);
-    }
-
+    //public function mailboxExists($name = '')
+    //{
+    //    if (empty($name)) {
+    //        return false;
+    //    }
+    //
+    //    $name = imap_utf7_encode($name);
+    //    $prefixedName = "{".$this->settings['server']."}INBOX.".$name;
+    //    $mailboxes = imap_list($this->conn, "{".$this->settings['server']."}", "*");
+    //
+    //    return in_array($prefixedName, $mailboxes);
+    //}
 
     /**
      * Return all mailboxes (folders) on the server.
      *
      * @return array
      */
-    public function getMailboxes()
-    {
-        return imap_list($this->conn, "{".$this->settings['server']."}", "*");
-    }
-
+    //public function getMailboxes()
+    //{
+    //    return imap_list($this->conn, "{".$this->settings['server']."}", "*");
+    //}
 
     /**
      * Return all mailboxes (folders) on the server. This function removes the
@@ -361,7 +336,6 @@ class MailReader
         return $result;
     }
 
-
     /**
      * Rename a mailbox (folder)
      *
@@ -379,15 +353,13 @@ class MailReader
         $from = imap_utf7_encode($from);
         $to = imap_utf7_encode($to);
 
-        return imap_renamemailbox($this->conn, "{".$this->settings['server']."}INBOX.".$from,
-            "{".$this->settings['server']."}INBOX.".$to);
+        return imap_renamemailbox($this->conn, "{".$this->settings['server']."}INBOX.".$from, "{".$this->settings['server']."}INBOX.".$to);
     }
-
 
     /**
      * Move a given message at $index to a given mailbox (folder).
      *
-     * @param int    $index
+     * @param int $index
      * @param string $to
      *
      * @return bool
@@ -401,14 +373,13 @@ class MailReader
         $msgId = 0;
 
         if (is_array($this->messages) == true) {
-            foreach($this ->messages as $msg) {
+            foreach ($this->messages as $msg) {
                 if ($msg['index'] == $index) {
                     $msgId = $msg['index'];
                     break;
                 }
             }
         }
-
 
         if ($msgId >= 0) {
             $to = imap_utf7_encode($to);
@@ -419,8 +390,6 @@ class MailReader
 
         return false;
     }
-
-
 
     /**
      * Delete a given email message. The param $index
@@ -441,9 +410,9 @@ class MailReader
             // Real delete emails marked as deleted
             imap_expunge($this->conn);
         }
+
         return $result;
     }
-
 
     /**
      * Return message information without reading it from the server
@@ -456,12 +425,13 @@ class MailReader
     {
         $message = [];
         if (is_array($this->messages) == true) {
-            foreach($this ->messages as $msg) {
+            foreach ($this->messages as $msg) {
                 if ($msg['index'] == $id) {
                     return $msg;
                 }
             }
         }
+
         return $message;
     }
 
@@ -476,7 +446,7 @@ class MailReader
     {
         $message = [];
         if (is_array($this->messages) == true) {
-            foreach($this ->messages as $msg) {
+            foreach ($this->messages as $msg) {
                 if ($msg['index'] == $id) {
                     $message = $msg;
                     break;
@@ -492,26 +462,26 @@ class MailReader
         return $message;
     }
 
-
     /**
      * Retrieve a list of message in the mailbox.
      *
      * @return array
      */
-    public function readMailbox()
-    {
-        $msg_cnt = imap_num_msg($this->conn);
-
-        $messages = [];
-        for ($i = 1; $i <= $msg_cnt; $i++) {
-            $header = imap_headerinfo($this->conn, $i);
-            $messages[] = [
-                'index'     => trim($header->Msgno),
-                'header'    => $header,
-                'structure' => imap_fetchstructure($this->conn, $i)
-            ];
-        }
-        $this->messages = $messages;
-        return $this->messages;
-    }
+    //public function readMailbox()
+    //{
+    //    $msg_cnt = imap_num_msg($this->conn);
+    //
+    //    $messages = [];
+    //    for ($i = 1; $i <= $msg_cnt; $i++) {
+    //        $header = imap_headerinfo($this->conn, $i);
+    //        $messages[] = [
+    //            'index' => trim($header->Msgno),
+    //            'header' => $header,
+    //            'structure' => imap_fetchstructure($this->conn, $i),
+    //        ];
+    //    }
+    //    $this->messages = $messages;
+    //
+    //    return $this->messages;
+    //}
 }

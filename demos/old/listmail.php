@@ -1,13 +1,9 @@
 <?php
 require 'autoload.php';
 
-use JM\MailReader\{
-    Credentials, Mailreader
-};
-
+use JM\MailReader\MailReader;
 
 try {
-    $credentials = new Credentials('',)
     $reader = new MailReader();
     $reader->connect([
         'server'   => 'foobar.com',
