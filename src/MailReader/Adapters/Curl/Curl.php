@@ -33,53 +33,88 @@ class Curl extends AdapterAbstract implements AdapterInterface
         return false;
     }
 
-    /**
-     * @param string $mailbox
-     * @return bool
-     */
     public function setMailbox($mailbox = ''): bool
     {
         // TODO: Implement setMailbox() method.
     }
 
-    /**
-     * Return the name of the current mailbox.
-     *
-     * @return string
-     */
     public function getMailbox(): string
     {
-        return '';
+        // TODO: Implement getMailbox() method.
     }
 
-    /**
-     * Return a list of available mailboxes.
-     *
-     * @return array
-     */
     public function getMailboxes(): array
     {
         // TODO: Implement getMailboxes() method.
     }
 
-    /**
-     * Check if a mailbox exists.
-     *
-     * @param string $name
-     * @return bool
-     */
-    public function mailboxExists($name = ''): bool
+    public function getPrettyMailboxes(): array
     {
-        return false;
+        // TODO: Implement getPrettyMailboxes() method.
     }
 
-    /**
-     * Read the current mailbox
-     *
-     * @return array
-     */
+    public function mailboxExists($name = ''): bool
+    {
+        // TODO: Implement mailboxExists() method.
+    }
+
+    public function subscribeToMailbox($name = ''): bool
+    {
+        // TODO: Implement subscribeToMailbox() method.
+    }
+
+    public function createMailbox($name = ''): bool
+    {
+        // TODO: Implement createMailbox() method.
+    }
+
     public function readMailbox(): array
     {
-        return [];
+        // TODO: Implement readMailbox() method.
+    }
+
+    public function renameMailbox($from = '', $to = ''): bool
+    {
+        // TODO: Implement renameMailbox() method.
+    }
+
+    public function deleteMailbox($name = ''): bool
+    {
+        // TODO: Implement deleteMailbox() method.
+    }
+
+    public function getMessages($mailbox = ''): array
+    {
+        // TODO: Implement getMessages() method.
+    }
+
+    public function getMessage($uid = '', $mailbox = '')
+    {
+        // TODO: Implement getMessage() method.
+    }
+
+    public function filterTo($to = '', $mailbox = ''): array
+    {
+        // TODO: Implement filterTo() method.
+    }
+
+    public function markMessageAsRead($uid = '', $mailbox = ''): bool
+    {
+        // TODO: Implement markMessageAsRead() method.
+    }
+
+    public function markMessageAsUnRead($uid = '', $mailbox = ''): bool
+    {
+        // TODO: Implement markMessageAsUnRead() method.
+    }
+
+    public function moveMessageFromCurrentMailBox($uid = -1, $to = ''): bool
+    {
+        // TODO: Implement moveMessageFromCurrentMailBox() method.
+    }
+
+    public function deleteMessage($uid = -1, $mailbox = ''): bool
+    {
+        // TODO: Implement deleteMessage() method.
     }
 }

@@ -2,73 +2,100 @@
 
 namespace JM\MailReader;
 
+/**
+ * Class Email
+ *
+ * @package JM\MailReader
+ */
 class Email
 {
-    protected $index;
-
-    protected $header;
-
-    protected $structure;
+    /**
+     * @var array
+     */
+    private $fields = [];
 
     /**
      * Email constructor.
      *
-     * @param $index
-     * @param $header
-     * @param $structure
+     * @param array $fields
      */
-    public function __construct($index, $header, $structure)
+    public function __construct($fields = [])
     {
-        $this->index = $index;
-        $this->header = $header;
-        $this->structure = $structure;
+
+        $this->fields = [
+            'subject' => '',
+            'from' => '',
+            'to' => '',
+            'date' => '',
+            'message_id' => '',
+            'size' => 0,
+            'msgno' => 0,
+            'recent' => 0,
+            'flagged' => 0,
+            'answered' => 0,
+            'deleted' => 0,
+            'seen' => 0,
+            'draft' => 0,
+            'udate' => 0,
+            'body' => '',
+        ];
+
+
+        if (is_object($fields)) {
+            $fields = (array)$fields;
+        }
+
+        if (is_array($fields) == true) {
+            $this->fields = array_merge($this->fields, $fields);
+        }
     }
 
     /**
+     * @param $name
+     * @param $arguments
+     *
      * @return mixed
      */
-    public function getIndex()
+    function __call($name, $arguments)
     {
-        return $this->index;
+        if (isset($this->fields[$name]) == true) {
+            return $this->fields[$name];
+        }
+        return null;
     }
 
     /**
-     * @param mixed $index
-     */
-    public function setIndex($index): void
-    {
-        $this->index = $index;
-    }
-
-    /**
+     * @param $name
+     *
      * @return mixed
      */
-    public function getHeader()
+    public function __get($name)
     {
-        return $this->header;
+        if (isset($this->fields[$name]) == true) {
+            return $this->fields[$name];
+        }
+        return null;
     }
 
     /**
-     * @param mixed $header
+     * @param $name
+     * @param $value
+     *
+     * @return null
      */
-    public function setHeader($header): void
+    public function __set($name, $value)
     {
-        $this->header = $header;
+        if (isset($this->fields[$name]) == true) {
+            $this->fields[$name] = $value;
+        }
+        return null;
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getStructure()
+    public function __debugInfo()
     {
-        return $this->structure;
-    }
-
-    /**
-     * @param mixed $structure
-     */
-    public function setStructure($structure): void
-    {
-        $this->structure = $structure;
+        return $this->fields;
     }
 }
